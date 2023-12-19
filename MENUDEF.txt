@@ -1,0 +1,21 @@
+AddOptionMenu "OptionsMenu"
+{
+	Submenu "Map name print", "JGP_MapNamePrint"
+}
+
+AddOptionMenu "OptionsMenuSimple"
+{
+	Submenu "Map name print", "JGP_MapNamePrint"
+}
+
+OptionMenu "JGP_MapNamePrint"
+{
+	Title "Map name print"
+	StaticText ""
+
+	Slider "Map info display duration (tics)", "mnp_showtime", 0, 350, 5, 0
+	Slider "Map info fade-out time (tics)", "mnp_fadeouttime", 0, 75, 5, 0
+	ColorPicker "Level title color", "mnp_titlecolor"
+	Option "Show map number", "mnp_showmapnum", "OnOff"
+	ColorPicker "Author's name color", "mnp_authorcolor"
+}

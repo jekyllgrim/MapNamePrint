@@ -1,0 +1,5 @@
+user int mnp_showtime = 70;
+user int mnp_fadeouttime = 35;
+user color mnp_titlecolor = "FF0000";
+user color mnp_authorcolor = "FF0000";
+user bool mnp_showmapnum = true;
