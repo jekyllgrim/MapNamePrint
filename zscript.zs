@@ -70,6 +70,20 @@ class JGP_MapStartupInfo : EventHandler
 			{
 				return;
 			}
+
+			// Don't show for levels with NoAutoSaveHint flag,
+			// since those are meant to be dummy levels:
+			if (Level && Level.info && Level.info.flags2 & LEVEL2_NOAUTOSAVEHINT)
+			{
+				return;
+			}
+
+			t_mapname = StringTable.Localize(Level.levelName);
+			if (!t_mapname || t_mapname ~== "TITLEMAP")
+			{
+				return;
+			}
+
 			titleFnt = Font.FindFont('BigUpper');
 			if (!titleFnt)
 			{
@@ -78,12 +92,6 @@ class JGP_MapStartupInfo : EventHandler
 			if (!titleFnt)
 			{
 				Console.Printf("\cGError: \cDBIGFONT\c- not found; cannot print map name.");
-				return;
-			}
-
-			t_mapname = StringTable.Localize(Level.levelName);
-			if (!t_mapname || t_mapname ~== "TITLEMAP")
-			{
 				return;
 			}
 
