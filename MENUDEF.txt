@@ -23,9 +23,9 @@ OptionMenu "JGP_MapNamePrint"
 	StaticText ""
 	Slider "$mnp_duration", "mnp_showtime", 0, 350, 5, 0
 	Option "$mnp_fadein_style", "mnp_startWipeStyle", "StartWipeStyle"
-	Slider "$mnp_fadein_duration", "mnp_fadeintime", 0, 105, 5, 0
+	Slider "$mnp_fadein_duration", "mnp_fadeintime", 0, 105, 5, 0, "mnp_startWipeStyle"
 	Option "$mnp_fadeout_style", "mnp_endWipeStyle", "EndWipeStyle"
-	Slider "$mnp_fadeout_duration", "mnp_fadeouttime", 0, 105, 5, 0
+	Slider "$mnp_fadeout_duration", "mnp_fadeouttime", 0, 105, 5, 0, "mnp_endWipeStyle"
 }
 
 OptionValue "StartWipeStyle"
