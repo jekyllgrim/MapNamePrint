@@ -24,6 +24,18 @@ class JGP_MapStartupInfo : EventHandler
 	{
 		if (e.name == TITLEEVENTNAME)
 		{
+			t_mapname = StringTable.Localize(Level.levelName);
+			if (!t_mapname || t_mapname ~== "TITLEMAP")
+			{
+				return;
+			}
+			t_mapnum = CVar.GetCvar('mnp_showmapnum', players[consoleplayer]).GetBool() ? Level.mapName : "";
+			if (t_mapname && t_mapnum)
+			{
+				t_mapname = String.Format("%s: %s", t_mapnum, t_mapname);
+			}
+			t_author = Level.authorName;
+
 			titleTics = CVar.GetCvar('mnp_showtime', players[consoleplayer]).GetInt();
 			titleFadeOutTime = Clamp(CVar.GetCvar('mnp_fadeouttime', players[consoleplayer]).GetInt(), 0, titleTics * 0.5);
 			titleTics += titleFadeOutTime;
@@ -31,20 +43,13 @@ class JGP_MapStartupInfo : EventHandler
 			titleColor = color(CVar.GetCvar('mnp_titlecolor', players[consoleplayer]).GetInt());
 			authorColor = color(CVar.GetCvar('mnp_authorcolor', players[consoleplayer]).GetInt());
 			
-			t_mapnum = CVar.GetCvar('mnp_showmapnum', players[consoleplayer]).GetBool() ? Level.mapName : "";
-			t_mapname = StringTable.Localize(Level.levelName);
-			t_author = Level.authorName;
-			if (t_mapname && t_mapnum)
-			{
-				t_mapname = String.Format("%s: %s", t_mapnum, t_mapname);
-			}
-			Console.Printf("printing title %s for %d tics", t_mapname, titleTics);
+			//Console.Printf("printing title %s for %d tics", t_mapname, titleTics);
 		}
 	}
 
 	override void UiTick()
 	{
-		if (titleTics > 0)
+		if (titleTics > 0 && !Menu.GetCurrentMenu())
 		{
 			titleTics--;
 		}
@@ -52,11 +57,17 @@ class JGP_MapStartupInfo : EventHandler
 
 	override void RenderOverlay(RenderEvent e)
 	{
-		if (titleTics <= 0)
+		if (titleTics <= 0 || gamestate != GS_LEVEL || !t_mapname)
 			return;
 		
 		if (!titleFnt)
+		{
 			titleFnt = Font.FindFont('BigUpper');
+			if (!titleFnt)
+				titleFnt = Font.FindFont('BIGFONT');
+			if (!titleFnt)
+				return;
+		}
 
 		int t_mapname_width = titleFnt.StringWidth(t_mapname);
 		int t_author_width = titleFnt.StringWidth(t_author);
