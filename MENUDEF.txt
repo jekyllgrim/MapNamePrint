@@ -1,21 +1,47 @@
 AddOptionMenu "OptionsMenu"
 {
-	Submenu "Map name print", "JGP_MapNamePrint"
+	Submenu "$mnp_menu_title", "JGP_MapNamePrint"
 }
 
 AddOptionMenu "OptionsMenuSimple"
 {
-	Submenu "Map name print", "JGP_MapNamePrint"
+	Submenu "$mnp_menu_title", "JGP_MapNamePrint"
 }
 
 OptionMenu "JGP_MapNamePrint"
 {
-	Title "Map name print"
+	Title "$mnp_menu_title"
 	StaticText ""
 
-	Slider "Map info display duration (tics)", "mnp_showtime", 0, 350, 5, 0
-	Slider "Map info fade-out time (tics)", "mnp_fadeouttime", 0, 75, 5, 0
-	ColorPicker "Level title color", "mnp_titlecolor"
-	Option "Show map number", "mnp_showmapnum", "OnOff"
-	ColorPicker "Author's name color", "mnp_authorcolor"
+	Option "$mnp_enable", "mnp_enable", "OnOff"
+
+	StaticText ""
+	Option "$mnp_shownumber", "mnp_showmapnum", "OnOff"
+	ColorPicker "$mnp_title_color", "mnp_titlecolor"
+	ColorPicker "$mnp_author_color", "mnp_authorcolor"
+
+	StaticText ""
+	Slider "$mnp_duration", "mnp_showtime", 0, 350, 5, 0
+	Option "$mnp_fadein_style", "mnp_startWipeStyle", "StartWipeStyle"
+	Slider "$mnp_fadein_duration", "mnp_fadeintime", 0, 105, 5, 0
+	Option "$mnp_fadeout_style", "mnp_endWipeStyle", "EndWipeStyle"
+	Slider "$mnp_fadeout_duration", "mnp_fadeouttime", 0, 105, 5, 0
+}
+
+OptionValue "StartWipeStyle"
+{
+	0, "$mnp_fadestyle_none"
+	1, "$mnp_fadestyle_fadein"
+	2, "$mnp_fadestyle_horwipe"
+	3, "$mnp_fadestyle_vertwipe"
+	4, "$mnp_fadestyle_fromcenter"
+}
+
+OptionValue "EndWipeStyle"
+{
+	0, "$mnp_fadestyle_none"
+	1, "$mnp_fadestyle_fadeout"
+	2, "$mnp_fadestyle_horwipe"
+	3, "$mnp_fadestyle_vertwipe"
+	4, "$mnp_fadestyle_fromsides"
 }

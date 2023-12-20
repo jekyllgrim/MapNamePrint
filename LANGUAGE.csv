@@ -1,0 +1,18 @@
+default,identifier
+Map Info Print Options,mnp_menu_title
+Enable mod,mnp_enable
+Level name color,mnp_title_color
+Show level label (MAP##),mnp_shownumber
+Author's name color,mnp_author_color
+Hold duration (tics),mnp_duration
+Fade-in style,mnp_fadein_style
+Fade-in duration (tics),mnp_fadein_duration
+Fade-out style,mnp_fadeout_style
+Fade-out duration (tics),mnp_fadeout_duration
+None,mnp_fadestyle_none
+Fade in,mnp_fadestyle_fadein
+Fade out,mnp_fadestyle_fadeout
+Horizontap wipe,mnp_fadestyle_horwipe
+Vertical wipe,mnp_fadestyle_vertwipe
+Wipe from center,mnp_fadestyle_fromcenter
+Wipe from sides,mnp_fadestyle_fromsides
