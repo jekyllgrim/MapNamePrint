@@ -5,6 +5,7 @@ class JGP_MapStartupInfo : EventHandler
 	const TITLEEVENTNAME = "printtitle";
 	const TITLEVRESX = 320;
 	const TITLEVRESY = 200;
+	const FRAMERATE = 60.0;
 
 	enum EWipeStyle
 	{
@@ -15,20 +16,22 @@ class JGP_MapStartupInfo : EventHandler
 		WS_Outward,
 	}
 
-	ui uint titleTics;
-	ui uint titleDuration;
+	ui double titleCounter;
+	ui int playerSpawnTime;
 	ui EWipeStyle startWipeStyle;
 	ui EWipeStyle endWipeStyle;
-	ui uint startWipeTime;
-	ui uint endWipeTime;
-	ui uint startWipeThreshold;
-	ui uint endWipeThreshold;
+	ui double titleDuration;
+	ui double startWipeTime;
+	ui double endWipeTime;
+	ui double startWipeThreshold;
+	ui double endWipeThreshold;
 	ui color titleColor;
 	ui color authorColor;
 	ui Font titleFnt;
 	ui String t_mapnum;
 	ui String t_mapname;
 	ui String t_author;
+	ui double prevMSTime;
 
 	clearscope double LinearMap(double val, double source_min, double source_max, double out_min, double out_max, bool clampit = false) 
 	{
@@ -40,6 +43,17 @@ class JGP_MapStartupInfo : EventHandler
 			d = Clamp(d, truemin, truemax);
 		}
 		return d;
+	}
+
+	ui double GetDeltaTime()
+	{
+		if (!prevMSTime)
+			prevMSTime = MSTimeF();
+
+		double ftime = MSTimeF() - prevMSTime;
+		prevMSTime = MSTimeF();
+		double dtime = 1000.0 / FRAMERATE;
+		return (ftime / dtime);
 	}
 
 	override void PlayerSpawned(PlayerEvent e)
@@ -63,7 +77,7 @@ class JGP_MapStartupInfo : EventHandler
 			}
 			if (!titleFnt)
 			{
-				Console.Printf("Error: \cDBIGFONT\cG not found; cannot print map name.");
+				Console.Printf("\cGError: \cDBIGFONT\c- not found; cannot print map name.");
 				return;
 			}
 
@@ -80,13 +94,15 @@ class JGP_MapStartupInfo : EventHandler
 			}
 			t_author = Level.authorName;
 
-			titleDuration = CVar.GetCvar('mnp_showtime', players[consoleplayer]).GetInt();
-			startWipeTime = Clamp(CVar.GetCvar('mnp_fadeintime', players[consoleplayer]).GetInt(), 0, titleDuration * 0.5);
-			endWipeTime = Clamp(CVar.GetCvar('mnp_fadeouttime', players[consoleplayer]).GetInt(), 0, titleDuration * 0.5);
+			playerSpawnTime = Level.mapTime;
+
+			titleDuration = CVar.GetCvar('mnp_showtime', players[consoleplayer]).GetFloat() * FRAMERATE;
+			startWipeTime = CVar.GetCvar('mnp_fadeintime', players[consoleplayer]).GetFloat() * FRAMERATE;
+			endWipeTime = CVar.GetCvar('mnp_fadeouttime', players[consoleplayer]).GetFloat() * FRAMERATE;
 			titleDuration += (startWipeTime + endWipeTime);
 			startWipeThreshold = titleDuration - startWipeTime;
 			endWipeThreshold = endWipeTime;
-			titleTics = titleDuration;
+			titleCounter = titleDuration;
 			
 			startWipeStyle = CVar.GetCvar('mnp_startWipeStyle', players[consoleplayer]).GetInt();
 			endWipeStyle = CVar.GetCvar('mnp_endWipeStyle', players[consoleplayer]).GetInt();
@@ -97,25 +113,20 @@ class JGP_MapStartupInfo : EventHandler
 			col = color(CVar.GetCvar('mnp_authorcolor', players[consoleplayer]).GetInt());
 			authorColor = color(255, col.r, col.g, col.b);
 			
-			//Console.Printf("printing title %s for %d tics", t_mapname, titleTics);
-		}
-	}
-
-	override void UiTick()
-	{
-		if (titleTics > 0 && !Menu.GetCurrentMenu())
-		{
-			titleTics--;
-			if (titleTics == 0)
-			{
-				Screen.ClearClipRect();
-			}
+			//Console.Printf("printing title %s for %d tics", t_mapname, titleCounter);
 		}
 	}
 
 	override void RenderOverlay(RenderEvent e)
 	{
-		if (titleTics <= 0 || gamestate != GS_LEVEL || !t_mapname || !titleFnt)
+		if (titleCounter <= 0 || gamestate != GS_LEVEL || !t_mapname || !titleFnt)
+		{
+			return;
+		}
+
+		// don't start the process until at least 1 second
+		// has passed since the player has spawned:
+		if (!Level || Level.mapTime - playerSpawnTime < TICRATE)
 		{
 			return;
 		}
@@ -128,7 +139,8 @@ class JGP_MapStartupInfo : EventHandler
 
 		double alpha = 1.0;
 		vector2 screenSize = (Screen.GetWidth(), Screen.GetHeight());
-		if (startWipeThreshold > 0 && titleTics >= startWipeThreshold)
+		//Console.Printf("titleCounter %.1f, titleDuration %.1f, startWipeThreshold %.1f, endWipeThreshold %.1f", titleCounter, titleDuration, startWipeThreshold, endWipeThreshold);
+		if (startWipeThreshold > 0 && titleCounter >= startWipeThreshold)
 		{
 			double ofs;
 			switch (startWipeStyle)
@@ -136,23 +148,23 @@ class JGP_MapStartupInfo : EventHandler
 			default:
 				break;
 			case WS_Fade:
-				alpha = LinearMap(titleTics, titleDuration, startWipeThreshold, 0., 1., true);
+				alpha = LinearMap(titleCounter, titleDuration, startWipeThreshold, 0., 1., true);
 				break;
 			case WS_Horizontal:
-				ofs = LinearMap(titleTics, titleDuration, startWipeThreshold, -screenSize.x, 0, true);
+				ofs = LinearMap(titleCounter, titleDuration, startWipeThreshold, -screenSize.x, 0, true);
 				Screen.SetClipRect(ofs, 0, screenSize.x, screenSize.y);
 				break;
 			case WS_Vertical:
-				ofs = LinearMap(titleTics, titleDuration, startWipeThreshold, -screenSize.y * 0.5, 0, true);
+				ofs = LinearMap(titleCounter, titleDuration, startWipeThreshold, -screenSize.y * 0.5, 0, true);
 				Screen.SetClipRect(0, ofs, screenSize.x, screenSize.y*0.5);
 				break;
 			case WS_Outward:
-				double wipeWidth = LinearMap(titleTics, titleDuration, startWipeThreshold, 0, screenSize.x * 0.5, true);
+				double wipeWidth = LinearMap(titleCounter, titleDuration, startWipeThreshold, 0, screenSize.x * 0.5, true);
 				Screen.SetClipRect(screenSize.x * 0.5 - wipeWidth * 0.5, 0, wipeWidth, screenSize.y);
 				break;
 			}
 		}
-		if (endWipeThreshold > 0 && titleTics <= endWipeThreshold)
+		if (endWipeThreshold > 0 && titleCounter <= endWipeThreshold)
 		{
 			double ofs;
 			switch (endWipeStyle)
@@ -160,18 +172,18 @@ class JGP_MapStartupInfo : EventHandler
 			default:
 				break;
 			case WS_Fade:
-				alpha = LinearMap(titleTics, endWipeThreshold, 0, 1., 0., true);
+				alpha = LinearMap(titleCounter, endWipeThreshold, 0, 1., 0., true);
 				break;
 			case WS_Horizontal:
-				ofs = LinearMap(titleTics, endWipeThreshold, 0, 0, screenSize.x, true);
+				ofs = LinearMap(titleCounter, endWipeThreshold, 0, 0, screenSize.x, true);
 				Screen.SetClipRect(ofs, 0, screenSize.x, screenSize.y);
 				break;
 			case WS_Vertical:
-				ofs = LinearMap(titleTics, endWipeThreshold, 0, 0, screenSize.y * 0.5, true);
+				ofs = LinearMap(titleCounter, endWipeThreshold, 0, 0, screenSize.y * 0.5, true);
 				Screen.SetClipRect(0, ofs, screenSize.x, screenSize.y*0.5);
 				break;
 			case WS_Outward:
-				double wipeWidth = LinearMap(titleTics, endWipeThreshold, 0, screenSize.x * 0.5, 0, true);
+				double wipeWidth = LinearMap(titleCounter, endWipeThreshold, 0, screenSize.x * 0.5, 0, true);
 				Screen.SetClipRect(screenSize.x * 0.5 - wipeWidth * 0.5, 0, wipeWidth, screenSize.y);
 				break;
 			}
@@ -209,5 +221,11 @@ class JGP_MapStartupInfo : EventHandler
 		}
 		
 		Screen.ClearClipRect();
+
+		double deltaTime = GetDeltaTime();
+		if (!Menu.GetCurrentMenu())
+		{
+			titleCounter -= deltaTime;
+		}
 	}
 }

@@ -21,11 +21,11 @@ OptionMenu "JGP_MapNamePrint"
 	ColorPicker "$mnp_author_color", "mnp_authorcolor"
 
 	StaticText ""
-	Slider "$mnp_duration", "mnp_showtime", 0, 350, 5, 0
+	Slider "$mnp_duration", "mnp_showtime", 0, 10, 0.1, 1
 	Option "$mnp_fadein_style", "mnp_startWipeStyle", "StartWipeStyle"
-	Slider "$mnp_fadein_duration", "mnp_fadeintime", 0, 105, 5, 0, "mnp_startWipeStyle"
+	Slider "$mnp_fadein_duration", "mnp_fadeintime", 0, 5, 0.1, 1, "mnp_startWipeStyle"
 	Option "$mnp_fadeout_style", "mnp_endWipeStyle", "EndWipeStyle"
-	Slider "$mnp_fadeout_duration", "mnp_fadeouttime", 0, 105, 5, 0, "mnp_endWipeStyle"
+	Slider "$mnp_fadeout_duration", "mnp_fadeouttime", 0, 5, 0.1, 1, "mnp_endWipeStyle"
 }
 
 OptionValue "StartWipeStyle"

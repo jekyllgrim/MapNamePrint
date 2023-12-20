@@ -1,9 +1,9 @@
 user bool mnp_enable = true;
-user int mnp_showtime = 70;
-user int mnp_fadeintime = 25;
-user int mnp_fadeouttime = 25;
+user bool mnp_showmapnum = true;
+user float mnp_showtime = 3.0;
+user float mnp_fadeintime = 1.0;
+user float mnp_fadeouttime = 1.0;
 user int mnp_startWipeStyle = 1;
 user int mnp_endWipeStyle = 1;
 user color mnp_titlecolor = "FF0000";
 user color mnp_authorcolor = "FF0000";
-user bool mnp_showmapnum = true;
